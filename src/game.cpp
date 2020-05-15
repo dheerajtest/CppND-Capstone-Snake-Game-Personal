@@ -2,12 +2,17 @@
 #include <iostream>
 #include "SDL.h"
 
-Game::Game(std::size_t grid_width, std::size_t grid_height)
+Game::Game(std::size_t grid_width, std::size_t grid_height, int mode)
     : snake(grid_width, grid_height),
       engine(dev()),
-      random_w(0, static_cast<int>(grid_width)),
-      random_h(0, static_cast<int>(grid_height)) {
+      random_w(0, static_cast<int>(grid_width)-1),
+      random_h(0, static_cast<int>(grid_height)-1) {
+  if (mode == 2) SetPlayer();
   PlaceFood();
+}
+
+void Game::SetPlayer() {
+  player.reset(new Player(&snake, &food));
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -23,6 +28,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
+    if (player) player->play();
     controller.HandleInput(running, snake);
     Update();
     renderer.Render(snake, food);
